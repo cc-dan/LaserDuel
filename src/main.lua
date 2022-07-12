@@ -30,10 +30,6 @@ function love.draw()
     end
 end
 
-function love.keypressed(key)
-
-end
-
 function love.update(dt)
     world:update(dt)
 

@@ -38,7 +38,7 @@ local InputHandler = {
     }
 }
 
-function love.keyreleased(key)
+function love.keypressed(key)
     local actionString = InputHandler.keys[key]
 
     if actionString then
