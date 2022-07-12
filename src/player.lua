@@ -1,6 +1,6 @@
 require 'utility'
 
-Player = {
+local Player = {
     speed = 350,
     graphicWidth = 32,
     graphicHeight = 64,
@@ -13,10 +13,12 @@ Player = {
     facing,
     collider,
     controlScheme,
+    shootId,
+    playerId,
 
     -- Manejados por la función update()
     xVector = 0,
-    gunPos = 0,
+    gunPos = 1,
 
     create = function(self, instanceData)
         -- En esta función se controlan las variables que son únicas para cada instancia + inicialización de variables autorreferenciales
@@ -36,6 +38,20 @@ Player = {
         else
             instance.facing = 1
         end
+
+        -- Observers
+        instance.shootId = beholder.observe(
+            "SHOOT_PLAYER", instance.playerId, 
+            function() instance:test() end
+        )
+        instance.moveGunUpId = beholder.observe(
+            "MOVE_GUN_UP", instance.playerId, 
+            function() instance:switchGunPos(instance.gunPos+1) end
+        )
+        instance.moveGunDownId = beholder.observe(
+            "MOVE_GUN_DOWN", instance.playerId,
+            function() instance:switchGunPos(instance.gunPos-1) end
+        )
 
         setmetatable(instance, self)
         self.__index = self
@@ -59,7 +75,7 @@ Player = {
         love.graphics.rectangle(
             'fill', 
             self.collider:getX() + 8 * self.facing, 
-            self.collider:getY() + ((self.graphicHeight/2) * self.gunPos), 
+            self.collider:getY() - ((self.graphicHeight/2) * self.gunPos) + self.graphicHeight, -- hack temporal hasta que aprenda matematica
             16, 8
         )
     end,
@@ -68,6 +84,18 @@ Player = {
         self.xVector = boolToInt(love.keyboard.isDown(self.controlScheme[1])) - boolToInt(love.keyboard.isDown(self.controlScheme[2]))
 
         self.collider:setLinearVelocity(self.xVector * self.speed, 0)
+
+        print(self.gunPos)
+    end,
+
+    switchGunPos = function(self, pos)
+        if (pos < 1 or pos > 3) then return end
+        
+        self.gunPos = pos
+    end,
+
+    test = function(self)
+        print(self.collider:getX())
     end
 }
 

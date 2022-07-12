@@ -1,18 +1,23 @@
+beholder = require('lib.beholder')
 local world = require('world')
 local player = require('player')
-local bullet = require('bullet')
+local inputHandler = require('inputHandler')
+
+local entities = {}
 
 function love.load()
-    player1 = player:create({
+    table.insert(entities, player:create({
         x = 32, 
         y = 0, 
-        controlScheme = {"right", "left"}
-    })
-    player2 = player:create({
+        controlScheme = {"right", "left"},
+        playerId = 0
+    }))
+    table.insert(entities, player:create({
         x = love.graphics.getWidth()-64, 
         y = 0, 
-        controlScheme = {"d", "a"}
-    })
+        controlScheme = {"d", "a"},
+        playerId = 1
+    }))
 
     world:load()
 end
@@ -20,17 +25,21 @@ end
 function love.draw()
     world:draw()
 
-    player1:draw()
-    player2:draw()
+    for x = 1, #entities do
+        entities[x]:draw()
+    end
+end
 
-    bullet:draw()
+function love.keypressed(key)
+
 end
 
 function love.update(dt)
     world:update(dt)
 
-    player1:update(dt)
-    player2:update(dt)
+    --inputHandler.keyPress['shoot_player1']()
 
-    bullet:update(dt)
+    for x = 1, #entities do
+        entities[x]:update(dt)
+    end
 end
