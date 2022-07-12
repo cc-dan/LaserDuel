@@ -5,5 +5,13 @@ Written in Lua using Löve2D
 
 # Prerequisites
 
+LOVE 11.3
+
+**Libraries**
+
 Windfield - Box2D physics module for LÖVE
 Beholder - A simple event observer for Lua
+
+**Instructions**
+
+Compile from src/ using the appropiate Löve2D version
