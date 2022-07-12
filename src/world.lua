@@ -1,7 +1,7 @@
-wf = require 'windfield'
+local wf = require 'lib.windfield'
 physicsWorld = wf.newWorld(0, 20000, true)
 
-World = {
+local World = {
     bgColor = {0, 200, 0},
     floorColor = {0, 0, 0, 255},
 
