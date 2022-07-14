@@ -1,4 +1,5 @@
 require 'utility'
+local bullet = require('bullet')
 
 local Player = {
     speed = 350,
@@ -15,6 +16,7 @@ local Player = {
     controlScheme,
     shootId,
     playerId,
+    --destroy = false,
 
     -- Manejados por la función update()
     xVector = 0,
@@ -23,15 +25,11 @@ local Player = {
     create = function(self, instanceData)
         -- En esta función se controlan las variables que son únicas para cada instancia + inicialización de variables autorreferenciales
         -- e.g. posición inicial, dirección, esquema de controles, creación de hitbox
-        local instance = instanceData or {
-            x = 0,
-            y = 0,
-            controlScheme = {"right", "left"}
-        }
+        local instance = instanceData
 
         -- El collider se crea dentro de la función porque requiere hacer referencias a variables de la clase, lo cual no se puede hacer dentro de la table
         -- Ninguno de los valores de la table existen hasta que no sea creada
-        instance.collider = physicsWorld:newRectangleCollider(instance.x, instance.y, self.graphicWidth, self.graphicHeight)
+        instance.collider = physicsWorld:newRectangleCollider(instance.x, instance.y-self.graphicHeight/2, self.graphicWidth, self.graphicHeight)
 
         if (instance.x > love.graphics.getWidth()/2) then
             instance.facing = -1
@@ -42,7 +40,7 @@ local Player = {
         -- Observers
         instance.shootId = beholder.observe(
             "SHOOT_PLAYER", instance.playerId, 
-            function() instance:test() end
+            function() instance:shoot() end
         )
         instance.moveGunUpId = beholder.observe(
             "MOVE_GUN_UP", instance.playerId, 
@@ -84,14 +82,20 @@ local Player = {
         self.xVector = boolToInt(love.keyboard.isDown(self.controlScheme[1])) - boolToInt(love.keyboard.isDown(self.controlScheme[2]))
 
         self.collider:setLinearVelocity(self.xVector * self.speed, 0)
-
-        print(self.gunPos)
     end,
 
     switchGunPos = function(self, pos)
         if (pos < 1 or pos > 3) then return end
         
         self.gunPos = pos
+    end,
+
+    shoot = function(self)
+        table.insert(entities, bullet:create({
+            x=self.collider:getX(), 
+            y=self.collider:getY(), 
+            direction=self.facing
+        }))
     end,
 
     test = function(self)
