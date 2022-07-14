@@ -29,7 +29,7 @@ local Player = {
 
         -- El collider se crea dentro de la función porque requiere hacer referencias a variables de la clase, lo cual no se puede hacer dentro de la table
         -- Ninguno de los valores de la table existen hasta que no sea creada
-        instance.collider = physicsWorld:newRectangleCollider(instance.x, instance.y-self.graphicHeight/2, self.graphicWidth, self.graphicHeight)
+        world:add(instance, instance.x, instance.y, self.graphicWidth, self.graphicHeight)
 
         if (instance.x > love.graphics.getWidth()/2) then
             instance.facing = -1
@@ -62,8 +62,8 @@ local Player = {
         love.graphics.setColor(self.color)
         love.graphics.rectangle(
             "fill", 
-            self.collider:getX() - self.graphicWidth/2, 
-            self.collider:getY() - self.graphicHeight/2, 
+            self.x, 
+            self.y, 
             self.graphicWidth, 
             self.graphicHeight
         )
@@ -72,8 +72,8 @@ local Player = {
         love.graphics.setColor(0, 0, 0, 255)
         love.graphics.rectangle(
             'fill', 
-            self.collider:getX() + 8 * self.facing, 
-            self.collider:getY() - ((self.graphicHeight/2) * self.gunPos) + self.graphicHeight, -- hack temporal hasta que aprenda matematica
+            self.x + 8 * self.facing, 
+            self.y - ((self.graphicHeight/2) * self.gunPos) + self.graphicHeight+32, -- hack temporal hasta que aprenda matematica
             16, 8
         )
     end,
@@ -81,7 +81,12 @@ local Player = {
     update = function(self, dt)
         self.xVector = boolToInt(love.keyboard.isDown(self.controlScheme[1])) - boolToInt(love.keyboard.isDown(self.controlScheme[2]))
 
-        self.collider:setLinearVelocity(self.xVector * self.speed, 0)
+        local actualX, actualY, cols, len = world:move(
+            self, 
+            self.x + (self.xVector * self.speed) * dt, 
+            self.y
+        )
+        self.x, self.y = actualX, actualY
     end,
 
     switchGunPos = function(self, pos)
@@ -92,14 +97,14 @@ local Player = {
 
     shoot = function(self)
         table.insert(entities, bullet:create({
-            x=self.collider:getX(), 
-            y=self.collider:getY(), 
+            x=self.x, 
+            y=self.y, 
             direction=self.facing
         }))
     end,
 
     test = function(self)
-        print(self.collider:getX())
+        print(x)
     end
 }
 

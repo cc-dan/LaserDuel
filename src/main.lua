@@ -12,13 +12,13 @@ function love.load()
     
     table.insert(entities, player:create({
         x = 32, 
-        y = love.graphics.getHeight()-64,
+        y = love.graphics.getHeight()-128,
         controlScheme = {"right", "left"},
         playerId = 0
     }))
     table.insert(entities, player:create({
         x = love.graphics.getWidth()-64, 
-        y = love.graphics.getHeight()-64, 
+        y = love.graphics.getHeight()-128, 
         controlScheme = {"d", "a"},
         playerId = 1
     }))
@@ -33,14 +33,6 @@ function love.draw()
 end
 
 function love.update(dt)
-    world:update(dt)
-
-    print(#entities)
-    --[[
-    for i, v in ipairs(entities) do
-        entities[i]:update(dt)
-    end]]
-
     for x = #entities, 1, -1 do
         if (entities[x].destroy) then 
             table.remove(entities, x)
