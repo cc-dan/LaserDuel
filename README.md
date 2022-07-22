@@ -9,7 +9,7 @@ LOVE 11.3
 
 **Libraries**
 
-Windfield - Box2D physics module for LÖVE
+Bump - Lua collision-detection library
 Beholder - A simple event observer for Lua
 
 Place libraries on src/lib/ folder
