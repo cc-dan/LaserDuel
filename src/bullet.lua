@@ -1,14 +1,20 @@
-Bullet = {
+local Bullet = {
     x = 20,
     y = 0,
     speed = 2500,
-    gw = 32,
-    gh = 16,
+    gw = 16,
+    gh = 8,
     direction,
     destroy = false,
+    collisionId = 'bullet',
+    owner,
 
-    create = function(self, instanceData)
+    create = function(self, instanceData, owner)
         local instance = instanceData
+
+        world:add(instance, instance.x, instance.y, self.gw, self.gh)
+
+        self.owner = owner
 
         setmetatable(instance, self)
         self.__index = self
@@ -22,11 +28,43 @@ Bullet = {
     end,
 
     update = function(self, dt)
-        self.x = self.x + (self.speed*self.direction) * dt
+        --self.x = self.x + (self.speed*self.direction) * dt
+        local actualX, actualY, cols, len = world:move(
+            self, 
+            self.x + (self.speed*self.direction) * dt, 
+            self.y, 
+            function(item, other) return 'touch' end
+        )
+        self.x = actualX
 
-        if (self.x < 0 or self.x > love.graphics.getWidth()) then 
-            self.destroy = true 
+        for i=1, #cols do
+            if cols[i].other.collisionId == "player" then
+                cols[i].other:kill()
+
+                world:remove(self)
+                self.destroy = true
+            end
+
+            if cols[i].other.collisionId == "shield" then
+                if not (cols[i].other.life >= 55) then
+                    self:kill()
+                else
+                    self.direction = self.direction * -1
+                    self.speed = self.speed * 1.10
+                end
+
+                cols[i].other:kill()
+            end
         end
+
+        if (self.x < 0 or self.x > love.graphics.getWidth()) and not self.destroy then 
+            self:kill()
+        end
+    end,
+
+    kill = function(self)
+        world:remove(self)
+        self.destroy = true
     end
 }
 

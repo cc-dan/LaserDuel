@@ -1,11 +1,16 @@
 require 'utility'
 local bullet = require('bullet')
+local shield = require('shield')
 
 local Player = {
     speed = 350,
     graphicWidth = 32,
     graphicHeight = 64,
     color = {255, 0, 0, 255},
+    collisionId = "player",
+    destroy = false,
+    lock = false,
+    crouched = false,
     
     -- Dependientes de la instancia --> función create()
     -- Mantenidos acá como referencia
@@ -16,11 +21,10 @@ local Player = {
     controlScheme,
     shootId,
     playerId,
-    --destroy = false,
 
     -- Manejados por la función update()
     xVector = 0,
-    gunPos = 1,
+    gunPos = 0,
 
     create = function(self, instanceData)
         -- En esta función se controlan las variables que son únicas para cada instancia + inicialización de variables autorreferenciales
@@ -38,23 +42,42 @@ local Player = {
         end
 
         -- Observers
-        instance.shootId = beholder.observe(
-            "SHOOT_PLAYER", instance.playerId, 
-            function() instance:shoot() end
-        )
-        instance.moveGunUpId = beholder.observe(
-            "MOVE_GUN_UP", instance.playerId, 
-            function() instance:switchGunPos(instance.gunPos+1) end
-        )
-        instance.moveGunDownId = beholder.observe(
-            "MOVE_GUN_DOWN", instance.playerId,
-            function() instance:switchGunPos(instance.gunPos-1) end
-        )
+        beholder.group(instance, function()
+            beholder.observe(
+                "SHOOT_PLAYER", instance.playerId, 
+                function() instance:shoot() end
+            )
+            beholder.observe(
+                "MOVE_GUN_UP", instance.playerId, 
+                function() instance:switchGunPos(instance.gunPos-1) end
+            )
+            beholder.observe(
+                "MOVE_GUN_DOWN", instance.playerId,
+                function() instance:switchGunPos(instance.gunPos+1) end
+            )
+            beholder.observe(
+                "SPAWN_SHIELD", instance.playerId,
+                function() instance:spawnShield(instance) end
+            )
+            beholder.observe(
+                "CROUCH", instance.playerId,
+                function() instance:crouch() end
+            )
+        end)
 
         setmetatable(instance, self)
         self.__index = self
 
         return instance
+    end,
+
+    playerFilter = function(item, other)
+        if not other.destroy then 
+            return 'cross'
+        else 
+            return 'slide'
+        end
+        -- else return nil
     end,
 
     draw = function(self)
@@ -73,13 +96,13 @@ local Player = {
         love.graphics.rectangle(
             'fill', 
             self.x + 8 * self.facing, 
-            self.y - ((self.graphicHeight/2) * self.gunPos) + self.graphicHeight+32, -- hack temporal hasta que aprenda matematica
+            self.y + self.graphicHeight/2 * self.gunPos,
             16, 8
         )
     end,
 
     update = function(self, dt)
-        self.xVector = boolToInt(love.keyboard.isDown(self.controlScheme[1])) - boolToInt(love.keyboard.isDown(self.controlScheme[2]))
+        self.xVector = (boolToInt(love.keyboard.isDown(self.controlScheme[1])) - boolToInt(love.keyboard.isDown(self.controlScheme[2]))) * boolToInt(not self.lock)
 
         local actualX, actualY, cols, len = world:move(
             self, 
@@ -90,21 +113,43 @@ local Player = {
     end,
 
     switchGunPos = function(self, pos)
-        if (pos < 1 or pos > 3) then return end
+        if (pos < 0 or pos > 2) then return end
         
         self.gunPos = pos
     end,
 
     shoot = function(self)
+        if self.lock then return end
+
         table.insert(entities, bullet:create({
-            x=self.x, 
-            y=self.y, 
+            x=self.x + 32 * self.facing,                    -- margen de 16 para que no colisione con el que lo disparó (temporal)
+            y=self.y + self.graphicHeight/2 * self.gunPos, 
             direction=self.facing
         }))
     end,
+    
+    kill = function(self)
+        beholder.stopObserving(self)
+        world:remove(self)
+        self.destroy = true
+    end,
 
-    test = function(self)
-        print(x)
+    spawnShield = function(self)
+        table.insert(entities, shield:create({
+            x = self.x + (self.graphicWidth + 2) * self.facing,
+            y = self.y
+        }, self))
+    end,
+
+    crouch = function(self)
+        print(self.crouched)
+        self.crouched = not self.crouched
+
+        if (self.crouched) then 
+            self.graphicHeight = 32 
+        else 
+            self.graphicHeight = 64 
+        end
     end
 }
 
