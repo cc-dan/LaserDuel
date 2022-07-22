@@ -17,19 +17,18 @@ local World = {
         })
 
         for x=1, #worldObjects do
-            world:add(worldObjects[x], worldObjects[x].x, worldObjects[x].y, worldObjects[x].w, worldObjects[x].h)
+            local wObj = worldObjects[x]
+            world:add(wObj, wObj.x, wObj.y, wObj.w, wObj.h)
         end
-        
-        --print(world:getRect(floor))
     end,
 
     draw = function(self)
         love.graphics.setBackgroundColor(self.bgColor)
-        love.graphics.setColor(self.floorColor)
-        --love.graphics.rectangle("fill", 0, love.graphics.getHeight()-64, love.graphics.getWidth(), 64)
 
+        love.graphics.setColor(self.floorColor)
         for x=1, #worldObjects do
-            love.graphics.rectangle("fill", worldObjects[x].x, worldObjects[x].y, worldObjects[x].w, worldObjects[x].h)
+            local wObj = worldObjects[x]
+            love.graphics.rectangle("fill", wObj.x, wObj.y, wObj.w, wObj.h)
         end
     end,
 
