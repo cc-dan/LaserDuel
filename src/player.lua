@@ -1,16 +1,23 @@
 require 'utility'
 local bullet = require('bullet')
 local shield = require('shield')
+local assets = require('assets')
 
 local Player = {
     speed = 350,
     graphicWidth = 32,
     graphicHeight = 64,
-    color = {255, 0, 0, 255},
+    color = {255, 255, 255, 255},
     collisionId = "player",
     destroy = false,
     lock = false,
     crouched = false,
+    originX = 16,
+    originY = 32,
+    gunW = 16,
+    gunH = 8,
+    gun_originX = 8,
+    gun_originY = 4,
     
     -- Dependientes de la instancia --> función create()
     -- Mantenidos acá como referencia
@@ -25,6 +32,12 @@ local Player = {
     -- Manejados por la función update()
     xVector = 0,
     gunPos = 0,
+
+    sprites_gunPos = {
+        assets.player.img_player_gunPos_0,
+        assets.player.img_player_gunPos_1,
+        assets.player.img_player_gunPos_2
+    },
 
     create = function(self, instanceData)
         -- En esta función se controlan las variables que son únicas para cada instancia + inicialización de variables autorreferenciales
@@ -43,6 +56,7 @@ local Player = {
 
         -- Observers
         beholder.group(instance, function()
+            -- Controles
             beholder.observe(
                 "SHOOT_PLAYER", instance.playerId, 
                 function() instance:shoot() end
@@ -83,22 +97,29 @@ local Player = {
     draw = function(self)
         -- BODY
         love.graphics.setColor(self.color)
-        love.graphics.rectangle(
+        --[[love.graphics.rectangle(
             "fill", 
             self.x, 
             self.y, 
             self.graphicWidth, 
             self.graphicHeight
+        )]]
+        love.graphics.draw(
+            self.sprites_gunPos[self.gunPos+1], 
+            self.x + self.originX, self.y, 
+            0, 
+            self.facing, 1, 
+            self.originX
         )
 
         -- GUN
-        love.graphics.setColor(0, 0, 0, 255)
+        --[[love.graphics.setColor(0, 0, 0, 255)
         love.graphics.rectangle(
             'fill', 
-            self.x + 8 * self.facing, 
-            self.y + self.graphicHeight/2 * self.gunPos,
-            16, 8
-        )
+            (self.x + self.originX) - (self.gun_originX) + self.gunW * self.facing, 
+            (self.y - self.gun_originY) + self.graphicHeight/2 * self.gunPos,
+            self.gunW, self.gunH
+        )]]
     end,
 
     update = function(self, dt)
@@ -122,8 +143,8 @@ local Player = {
         if self.lock then return end
 
         table.insert(entities, bullet:create({
-            x=self.x + 32 * self.facing,                    -- margen de 16 para que no colisione con el que lo disparó (temporal)
-            y=self.y + self.graphicHeight/2 * self.gunPos, 
+            x=self.x+self.originX + 32 * self.facing, --* self.facing,
+            y=--[[self.y + self.graphicHeight/2 * self.gunPos]] (self.y + 8) + 16 * (self.gunPos), 
             direction=self.facing
         }))
     end,
@@ -135,13 +156,17 @@ local Player = {
     end,
 
     spawnShield = function(self)
+        if self.lock then return end
+
         table.insert(entities, shield:create({
-            x = self.x + (self.graphicWidth + 2) * self.facing,
+            x = --[[self.x + (self.graphicWidth + 2) * self.facing]] self.x + self.originX + 20 * self.facing,
             y = self.y
         }, self))
     end,
 
     crouch = function(self)
+        if self.lock then return end
+
         print(self.crouched)
         self.crouched = not self.crouched
 
