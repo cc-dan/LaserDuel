@@ -3,7 +3,9 @@ Shield = {
     y,
     gw = 4,
     gh = 48,
-    life = 60,
+    originX = 2,
+    originY = 0,
+    life = 0.6,
     parryWindow = 1,
     decayRate = 1,
     destroy = false,
@@ -13,37 +15,36 @@ Shield = {
     create = function(self, instanceData, owner)
         local instance = instanceData
 
-        owner.lock = true
+        world:add(instance, instance.x-self.originX, instance.y-self.originY, self.gw, self.gh)
 
-        world:add(instance, instance.x, instance.y, self.gw, self.gh)
-
-        self.owner = owner
+        instance.owner = owner
+        instance.owner.lock = true
 
         setmetatable(instance, self)
         self.__index = self
-
+        
         return instance
     end,
 
     draw = function(self)
         love.graphics.setColor(0, 0, 255)
-        love.graphics.rectangle('fill', self.x, self.y, self.gw, self.gh)
+        love.graphics.rectangle('fill', self.x-self.originX, self.y-self.originY, self.gw, self.gh)
     end,
 
-    update = function(self)
+    update = function(self, dt)
         local actualX, actualY, cols, len = world:check(self, self.x, self.y)
-
-        print(self.life)
 
         if self.life <= 0 then
             self:kill()
         end
 
-        self.life = self.life - self.decayRate
+        print(self.life)
+
+        self.life = self.life - self.decayRate * dt
     end,
 
     kill = function(self)
-        if self.owner then
+        if (self.owner) then
             self.owner.lock = false
         end
 
