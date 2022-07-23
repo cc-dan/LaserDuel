@@ -1,6 +1,6 @@
 local InputHandler = {
     -- Keycode strings --> action strings
-    keys = {
+    keyPresses = {
         -- PLAYER 1
         rctrl='shoot_p1',
         up='moveGun_up_p1',
@@ -14,7 +14,7 @@ local InputHandler = {
         s='moveGun_down_p2',
         g='spawnShield_p2'
     },
-    keyReleased = {
+    keyReleases = {
         -- PLAYER 1
         ralt='crouch_p1'
     },
@@ -62,15 +62,19 @@ local InputHandler = {
 }
 
 function love.keypressed(key)
-    local actionString = InputHandler.keys[key]
+    if key == "r" then
+        love.event.quit("restart")
+    end
+
+    local actionString = InputHandler.keyPresses[key]
 
     if actionString then
         InputHandler.keyPress[actionString]()
     end
 end
 
-function love.keyreleased(key)
-    local actionString = InputHandler.keyReleased[key]
+function love.keyReleases(key)
+    local actionString = InputHandler.keyReleases[key]
 
     if actionString then 
         InputHandler.keyRelease[actionString]()
