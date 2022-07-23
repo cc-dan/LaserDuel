@@ -4,6 +4,8 @@ local Bullet = {
     speed = 2500,
     gw = 16,
     gh = 8,
+    originX = 8,
+    originY = 4,
     direction,
     destroy = false,
     collisionId = 'bullet',
@@ -12,7 +14,7 @@ local Bullet = {
     create = function(self, instanceData, owner)
         local instance = instanceData
 
-        world:add(instance, instance.x, instance.y, self.gw, self.gh)
+        world:add(instance, instance.x-self.originX, instance.y-self.originY, self.gw, self.gh)
 
         self.owner = owner
 
@@ -24,7 +26,7 @@ local Bullet = {
 
     draw = function(self)
         love.graphics.setColor(255, 255, 255, 255)
-        love.graphics.rectangle("fill", self.x, self.y, self.gw, self.gh)
+        love.graphics.rectangle("fill", self.x-self.originX, self.y-self.originY, self.gw, self.gh)
     end,
 
     update = function(self, dt)
@@ -33,7 +35,13 @@ local Bullet = {
             self, 
             self.x + (self.speed*self.direction) * dt, 
             self.y, 
-            function(item, other) return 'touch' end
+            function(item, other) 
+                if (other.collisionId == "bullet") then 
+                    return 'cross'
+                end
+
+                return 'touch' 
+            end
         )
         self.x = actualX
 
@@ -46,7 +54,7 @@ local Bullet = {
             end
 
             if cols[i].other.collisionId == "shield" then
-                if not (cols[i].other.life >= 55) then
+                if not (cols[i].other.life >= 0.50) then
                     self:kill()
                 else
                     self.direction = self.direction * -1
