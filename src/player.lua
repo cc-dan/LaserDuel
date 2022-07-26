@@ -18,6 +18,7 @@ local Player = {
     gunH = 8,
     gun_originX = 8,
     gun_originY = 4,
+    bulletCount = 0,
     
     -- Dependientes de la instancia --> función create()
     -- Mantenidos acá como referencia
@@ -95,15 +96,13 @@ local Player = {
     end,
 
     draw = function(self)
-        -- BODY
+        --Hitbox
+        local x, y, w, h = world:getRect(self)
+        love.graphics.setColor({255, 0, 0, 255})
+        love.graphics.rectangle("line", x, y, w, h)
+
+        --Player
         love.graphics.setColor(self.color)
-        --[[love.graphics.rectangle(
-            "fill", 
-            self.x, 
-            self.y, 
-            self.graphicWidth, 
-            self.graphicHeight
-        )]]
         love.graphics.draw(
             self.sprites_gunPos[self.gunPos+1], 
             self.x + self.originX, self.y, 
@@ -111,15 +110,6 @@ local Player = {
             self.facing, 1, 
             self.originX
         )
-
-        -- GUN
-        --[[love.graphics.setColor(0, 0, 0, 255)
-        love.graphics.rectangle(
-            'fill', 
-            (self.x + self.originX) - (self.gun_originX) + self.gunW * self.facing, 
-            (self.y - self.gun_originY) + self.graphicHeight/2 * self.gunPos,
-            self.gunW, self.gunH
-        )]]
     end,
 
     update = function(self, dt)
@@ -144,9 +134,21 @@ local Player = {
 
         table.insert(entities, bullet:create({
             x=self.x+self.originX + 32 * self.facing, --* self.facing,
-            y=--[[self.y + self.graphicHeight/2 * self.gunPos]] (self.y + 8) + 16 * (self.gunPos), 
+            y=(self.y + 8) + 16 * (self.gunPos), 
             direction=self.facing
         }))
+
+        self.bulletCount = self.bulletCount + 1
+        if self.bulletCount >= 3 then self:reload() end
+    end,
+
+    reload = function(self)
+        self.lock = true 
+        print("reloading")
+
+        self.bulletCount = 0
+
+        self.lock = false
     end,
     
     kill = function(self)
@@ -159,7 +161,7 @@ local Player = {
         if self.lock then return end
 
         table.insert(entities, shield:create({
-            x = --[[self.x + (self.graphicWidth + 2) * self.facing]] self.x + self.originX + 20 * self.facing,
+            x = self.x + self.originX + 20 * self.facing,
             y = self.y
         }, self))
     end,
@@ -167,13 +169,22 @@ local Player = {
     crouch = function(self)
         if self.lock then return end
 
-        print(self.crouched)
         self.crouched = not self.crouched
 
+        if not (self.crouched) then 
+            self.y = self.y - self.graphicHeight / 2
+        end
+
+        world:update(
+            self, 
+            self.x, 
+            self.y + (self.graphicHeight / 2) * boolToInt(self.crouched), 
+            self.graphicWidth, 
+            self.graphicHeight / (1 + boolToInt(self.crouched))
+        )
+    
         if (self.crouched) then 
-            self.graphicHeight = 32 
-        else 
-            self.graphicHeight = 64 
+            self.y = self.y + self.graphicHeight / 2
         end
     end
 }
