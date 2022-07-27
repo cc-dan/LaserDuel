@@ -25,7 +25,7 @@ local Bullet = {
     end,
 
     draw = function(self)
-        love.graphics.setColor(255, 255, 255, 255)
+        love.graphics.setColor(255, 0, 0, 1)
         love.graphics.rectangle("fill", self.x-self.originX, self.y-self.originY, self.gw, self.gh)
     end,
 
