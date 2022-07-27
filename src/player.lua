@@ -15,6 +15,8 @@ local Player = {
     lock = false,
     crouched = false,
     jumping = false,
+    canShoot = true,
+    reloading = false,
     originX = 16,
     originY = 32,
     gunW = 16,
@@ -38,6 +40,10 @@ local Player = {
     yVector = 0,
     yVel = 0,
     gunPos = 0,
+    shootTimer,
+    shotDelay = 0.5,
+    reloadTimer,
+    reloadDelay = 4,
 
     sprites_gunPos = {
         assets.player.img_player_gunPos_0,
@@ -119,6 +125,14 @@ local Player = {
             self.facing, 1, 
             self.originX
         )
+        --Gun
+        love.graphics.setColor(255, 0, 0, boolToInt(self.canShoot and (not self.reloading)))
+        love.graphics.rectangle(
+            'fill', 
+            self.x+self.originX+12 * self.facing, 
+            ((self.y + 8) + 16 * (self.gunPos)) - 4, 
+            4, 4
+        )
     end,
 
     update = function(self, dt)
@@ -132,7 +146,10 @@ local Player = {
         )
         self.x, self.y = actualX, actualY
 
-        self.jumping = not (self.y == 272)
+        self.jumping = not (self.y == 272) -- Floor
+
+        if not (self.shootTimer == nil) then self.shootTimer:update(dt) end
+        if not (self.reloadTimer == nil) then self.reloadTimer:update(dt) end
     end,
 
     switchGunPos = function(self, pos)
@@ -142,7 +159,15 @@ local Player = {
     end,
 
     shoot = function(self)
-        if self.lock or self.jumping then return end
+        if self.lock or self.jumping or (not self.canShoot) or self.reloading then return end
+
+        self.canShoot = false
+
+        if (self.shootTimer == nil) then 
+            self.shootTimer = cron.after(self.shotDelay, function() self.canShoot = true end)
+        else 
+            self.shootTimer:reset()
+        end
 
         table.insert(entities, bullet:create({
             x=self.x+self.originX + 32 * self.facing,
@@ -156,11 +181,22 @@ local Player = {
 
     reload = function(self)
         self.lock = true 
+        self.reloading = true
         print("reloading")
+        if (self.reloadTimer == nil) then 
+            self.reloadTimer = cron.after(
+                self.reloadDelay, 
+                function() 
+                    self.reloading = false 
+                    self.lock = false
+                    print("done reloading") 
+                end
+            )
+        else
+            self.reloadTimer:reset()
+        end
 
         self.bulletCount = 0
-
-        self.lock = false
     end,
     
     kill = function(self)

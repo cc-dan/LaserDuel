@@ -1,4 +1,5 @@
 beholder = require('lib.beholder')
+cron = require('lib.cron')
 local world = require('world')
 local player = require('player')
 local inputHandler = require('inputHandler')
