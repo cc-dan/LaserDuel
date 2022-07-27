@@ -7,13 +7,15 @@ local InputHandler = {
         down='moveGun_down_p1',
         rshift='spawnShield_p1',
         ralt='crouch_p1',
+        j='jump_p1',
 
         -- PLAYER 2
         f='shoot_p2',
         w='moveGun_up_p2',
         s='moveGun_down_p2',
         g='spawnShield_p2',
-        c='crouch_p2'
+        c='crouch_p2',
+        space='jump_p2'
     },
     keyReleases = {
         -- PLAYER 1
@@ -41,6 +43,9 @@ local InputHandler = {
         crouch_p1=function()
             beholder.trigger("CROUCH", 0)
         end,
+        jump_p1=function()
+            beholder.trigger("JUMP", 0)
+        end,
 
         -- PLAYER 2
         shoot_p2=function()
@@ -57,6 +62,9 @@ local InputHandler = {
         end,
         crouch_p2=function()
             beholder.trigger("CROUCH", 1)
+        end,
+        jump_p2=function()
+            beholder.trigger("JUMP", 1)
         end
     },
 

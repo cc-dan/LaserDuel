@@ -5,6 +5,8 @@ local assets = require('assets')
 
 local Player = {
     speed = 350,
+    jumpSpeed = 500,
+    gravity = 50,
     graphicWidth = 32,
     graphicHeight = 64,
     color = {255, 255, 255, 255},
@@ -32,6 +34,8 @@ local Player = {
 
     -- Manejados por la función update()
     xVector = 0,
+    yVector = 0,
+    yVel = 0,
     gunPos = 0,
 
     sprites_gunPos = {
@@ -78,6 +82,10 @@ local Player = {
                 "CROUCH", instance.playerId,
                 function() instance:crouch() end
             )
+            beholder.observe(
+                "JUMP", instance.playerId,
+                function() instance:jump() end
+            )
         end)
 
         setmetatable(instance, self)
@@ -114,11 +122,12 @@ local Player = {
 
     update = function(self, dt)
         self.xVector = (boolToInt(love.keyboard.isDown(self.controlScheme[1])) - boolToInt(love.keyboard.isDown(self.controlScheme[2]))) * boolToInt(not self.lock)
+        self.yVel = self.yVel + self.gravity
 
         local actualX, actualY, cols, len = world:move(
             self, 
             self.x + (self.xVector * self.speed) * dt, 
-            self.y
+            self.y + (self.yVel) * dt
         )
         self.x, self.y = actualX, actualY
     end,
@@ -186,6 +195,13 @@ local Player = {
         if (self.crouched) then 
             self.y = self.y + self.graphicHeight / 2
         end
+    end,
+
+    jump = function(self)
+        if self.crouched then return end
+
+        print("jumped")
+        self.yVel = -self.jumpSpeed
     end
 }
 
