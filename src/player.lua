@@ -14,6 +14,7 @@ local Player = {
     destroy = false,
     lock = false,
     crouched = false,
+    jumping = false,
     originX = 16,
     originY = 32,
     gunW = 16,
@@ -105,9 +106,9 @@ local Player = {
 
     draw = function(self)
         --Hitbox
-        local x, y, w, h = world:getRect(self)
+        --[[local x, y, w, h = world:getRect(self)
         love.graphics.setColor({255, 0, 0, 255})
-        love.graphics.rectangle("line", x, y, w, h)
+        love.graphics.rectangle("line", x, y, w, h)]]
 
         --Player
         love.graphics.setColor(self.color)
@@ -130,6 +131,8 @@ local Player = {
             self.y + (self.yVel) * dt
         )
         self.x, self.y = actualX, actualY
+
+        self.jumping = not (self.y == 272)
     end,
 
     switchGunPos = function(self, pos)
@@ -139,10 +142,10 @@ local Player = {
     end,
 
     shoot = function(self)
-        if self.lock then return end
+        if self.lock or self.jumping then return end
 
         table.insert(entities, bullet:create({
-            x=self.x+self.originX + 32 * self.facing, --* self.facing,
+            x=self.x+self.originX + 32 * self.facing,
             y=(self.y + 8) + 16 * (self.gunPos), 
             direction=self.facing
         }))
@@ -171,7 +174,7 @@ local Player = {
 
         table.insert(entities, shield:create({
             x = self.x + self.originX + 20 * self.facing,
-            y = self.y
+            y = (self.y + self.originY) - 4
         }, self))
     end,
 
@@ -198,9 +201,8 @@ local Player = {
     end,
 
     jump = function(self)
-        if self.crouched then return end
+        if self.crouched or self.jumping then return end
 
-        print("jumped")
         self.yVel = -self.jumpSpeed
     end
 }

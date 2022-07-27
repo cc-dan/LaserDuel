@@ -14,7 +14,7 @@ local InputHandler = {
         w='moveGun_up_p2',
         s='moveGun_down_p2',
         g='spawnShield_p2',
-        c='crouch_p2',
+        lctrl='crouch_p2',
         space='jump_p2'
     },
     keyReleases = {
@@ -22,7 +22,7 @@ local InputHandler = {
         ralt='crouch_p1',
         
         -- PLAYER 2
-        c='crouch_p2'
+        lctrl='crouch_p2'
     },
 
     -- Action string --> closures
