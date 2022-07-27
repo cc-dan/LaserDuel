@@ -11,6 +11,7 @@ LOVE 11.3
 
 Bump v3.1.7 - Lua collision-detection library
 Beholder v2.1.1 - A simple event observer for Lua
+cron.lua v2.0.0 - Time-related functions for lua
 
 Place libraries on src/lib/ folder
 
