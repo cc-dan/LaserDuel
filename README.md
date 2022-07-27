@@ -9,8 +9,8 @@ LOVE 11.3
 
 **Libraries**
 
-Bump - Lua collision-detection library
-Beholder - A simple event observer for Lua
+Bump v3.1.7 - Lua collision-detection library
+Beholder v2.1.1 - A simple event observer for Lua
 
 Place libraries on src/lib/ folder
 
