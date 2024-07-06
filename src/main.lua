@@ -13,13 +13,13 @@ function love.load()
     
     table.insert(entities, player:create({
         x = 32, 
-        y = love.graphics.getHeight()-128,
+        y = love.graphics.getHeight()-104,
         controlScheme = {"d", "a"},
         playerId = 1
     }))
     table.insert(entities, player:create({
         x = love.graphics.getWidth()-64, 
-        y = love.graphics.getHeight()-128, 
+        y = love.graphics.getHeight()-104, 
         controlScheme = {"right", "left"},
         playerId = 0
     }))

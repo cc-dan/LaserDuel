@@ -1,20 +1,22 @@
 # Laser Duel
 
-Two player vs. game
+Two player versus game
 Written in Lua using Löve2D
 
-# Prerequisites
+## Prerequisites
 
 LOVE 11.3
 
-**Libraries**
+## Libraries used
 
-- Bump v3.1.7 - Lua collision-detection library
-- Beholder v2.1.1 - A simple event observer for Lua
-- cron.lua v2.0.0 - Time-related functions for lua
+- Bump v3.1.7 by kikito - Lua collision-detection library
+- Beholder v2.1.1 by kikito - A simple event observer for Lua
+- cron.lua v2.0.0 by kikito - Time-related functions for lua
 
-Place libraries on src/lib/ folder
-
-**Instructions**
+## Instructions
 
 Compile from src/ using the appropiate Löve2D version
+
+## Credits
+
+kikito for the libraries used, and ansimuz.com for the background art.

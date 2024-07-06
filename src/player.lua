@@ -126,13 +126,13 @@ local Player = {
             self.originX
         )
         --Gun
-        love.graphics.setColor(255, 0, 0, boolToInt(self.canShoot and (not self.reloading)))
-        love.graphics.rectangle(
-            'fill', 
-            self.x+self.originX+12 * self.facing, 
-            ((self.y + 8) + 16 * (self.gunPos)) - 4, 
-            4, 4
-        )
+        --love.graphics.setColor(255, 0, 0, boolToInt(self.canShoot and (not self.reloading)))
+        --love.graphics.rectangle(
+        --    'fill', 
+        --    self.x+self.originX+12 * self.facing, 
+        --    ((self.y + 8) + 16 * (self.gunPos)) - 4, 
+        --    4, 4
+        --)
     end,
 
     update = function(self, dt)
@@ -146,7 +146,7 @@ local Player = {
         )
         self.x, self.y = actualX, actualY
 
-        self.jumping = not (self.y == 272) -- Floor
+        self.jumping = not (self.y == 296) -- Floor
 
         if not (self.shootTimer == nil) then self.shootTimer:update(dt) end
         if not (self.reloadTimer == nil) then self.reloadTimer:update(dt) end
